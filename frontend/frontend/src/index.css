@@ -1,0 +1,42 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Default Styles */
+
+h1, h2, h3, h4, h5, h6 {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+input {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 0.125rem solid #000;
+  border-radius: 0.5rem;
+}
+
+input:focus {
+  outline: 0.125rem solid #00000080;
+}
+
+/* Default Styles */
+
+header {
+  width: 100%;
+  max-width: 100svw;
+  height: 5rem;
+  background: #fff;
+  box-shadow: 0 0 0.5rem #00000025;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
