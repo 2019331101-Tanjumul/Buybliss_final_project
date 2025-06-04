@@ -1,4 +1,9 @@
 ## How to run the project ? 
+-Copy the reprository's link 
+- Go to your desired file location to your local file and then open terminal on the destination folder and type : `git clone <copied link>`
+
+- After cloning the repo open it with vscode using ` code . `
+- Then , create two terminal one with Frontend and another with Backend and type `npm install / npm i ` in both terminals.
 
 - Go to backend directory first and run the command:
 `npm run dev`
