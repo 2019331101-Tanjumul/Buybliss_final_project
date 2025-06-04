@@ -1,23 +1,24 @@
 import http from "http";
-import express from 'express';
-import cors from 'cors';
-import { getHomeProducts, getSearchedProducts } from "./controllers/products.controller.js";
+import dotenv from "dotenv";
+import { connectDB } from "./db/index.js";
+import app from "./app.js";
 
-const app = express();
+dotenv.config({ path: "./config/.env" });
 
-app.use(cors({ withCredentials: true }))
-app.use(express.json())
 
 const server = http.createServer(app);
+const PORT = process.env.PORT || 3000;
 
-server.listen(3000, () => {
-  console.log("Server running at http://localhost:3000");
-});
+connectDB()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Server running at http://localhost:${PORT}`);
+    });
 
-app.get("/", async (req, res) => {
-  await getHomeProducts(req, res);
-})
-
-app.get("/:searchKey", async (req, res) => {
-  await getSearchedProducts(req, res);
-})
+    server.on("error", (error) => {
+      console.log("Unable to run server due to db connection error:", error)
+    })
+  })
+  .catch((error) => {
+    console.log("MongoDB connection failed!!!", error);
+  });
