@@ -1,78 +1,120 @@
 import puppeteer from "puppeteer";
+import { parsePrice } from "./converter.js";
 
-export const getStarTechHomeProducts = async (searchKey = "") => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+export const getStarTecSearchedProducts = async (searchKey = "", currentPage = 1) => {
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
 
-  const url = "https://www.startech.com.bd/";
-  await page.goto(url);
-
-
-  const products = await page.evaluate(() => {
-    const productElements = document.querySelectorAll(".p-item-inner");
-
-    return {
-      data: Array.from(productElements).map((product) => {
-        const imageUrl = product.querySelector(".p-item-img img")?.getAttribute("src") || "";
-        const title = product.querySelector(".p-item-name a").innerText;
-        const price = product.querySelector(".p-item-price .price-new")?.innerText || product.querySelector(".p-item-price")?.innerText;
-        const discount = product.querySelector(".mark")?.innerText || "";
-        const productDetailsLink = product.querySelector(".p-item-img a")?.getAttribute("href") || "";
+    const url = `https://www.startech.com.bd/product/search?search=${searchKey}&page=${currentPage}`;
+    await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
 
 
-        return {
-          imageUrl,
-          title,
-          price,
-          discount,
-          productDetailsLink,
-          company: "Star-Tech"
-        };
-      }),
-    }
-  });
+    const products = await page.evaluate(() => {
+      const productElements = document.querySelectorAll(".p-item-inner");
 
-  await browser.close();
+      return {
+        data: Array.from(productElements).map((product) => {
+          const imageUrl = product.querySelector(".p-item-img img")?.getAttribute("src") || "";
+          const title = product.querySelector(".p-item-name a").innerText;
+          const price = product.querySelector(".p-item-price .price-new")?.innerText || product.querySelector(".p-item-price")?.innerText;
+          const discount = product.querySelector(".mark")?.innerText || "";
+          const productDetailsLink = product.querySelector(".p-item-img a")?.getAttribute("href") || "";
 
-  return products;
+
+          return {
+            imageUrl,
+            title,
+            price,
+            discount,
+            productDetailsLink,
+            company: "StarTech"
+          };
+        }),
+      }
+    });
+
+
+    await browser.close();
+
+    products.data = products.data.map(p => ({
+      ...p,
+      price: parsePrice(p.price),
+    }));
+
+    return products.data;
+  } catch (error) {
+    console.log("getStarTecSearchedProducts:", error);
+    return null;
+  }
 }
 
-export const getStarTecSearchedProducts = async (searchKey = "") => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+export const getStarTecSearchedProductDetails = async (url) => {
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
 
-  const url = `https://www.startech.com.bd/product/search?search=${searchKey}`;
-  await page.goto(url);
-
-
-  const products = await page.evaluate(() => {
-    const productElements = document.querySelectorAll(".p-item-inner");
-    const currentPage = parseInt(document.querySelector(".pagination")?.querySelector(".active")?.innerText || 0);
-
-    return {
-      data: Array.from(productElements).map((product) => {
-        const imageUrl = product.querySelector(".p-item-img img")?.getAttribute("src") || "";
-        const title = product.querySelector(".p-item-name a").innerText;
-        const price = product.querySelector(".p-item-price .price-new")?.innerText || product.querySelector(".p-item-price")?.innerText;
-        const discount = product.querySelector(".mark")?.innerText || "";
-        const productDetailsLink = product.querySelector(".p-item-img a")?.getAttribute("href") || "";
+    await page.goto(`https://www.startech.com.bd/${url}`, { timeout: 60000, waitUntil: "domcontentloaded" });
 
 
-        return {
-          imageUrl,
-          title,
-          price,
-          discount,
-          productDetailsLink,
-          company: "Star-Tech"
-        };
-      }),
-      next: `https://www.startech.com.bd/product/search?&search=keyboard&page=${currentPage + 1}`
-    }
-  });
+    const product = await page.evaluate(() => {
+      const productInfo = document.querySelector(".product-details-summary");
+      const imageUrls = productInfo && [...productInfo.querySelectorAll(".product-images img")].map(img => img.src) || [];
+      const title = productInfo && productInfo.querySelector(".product-name")?.innerText?.trim()?.split("\n")?.[0] || "";
+      const reviews = productInfo && document.querySelector(".review h2")?.innerText || "";
+      const productId = productInfo && productInfo.querySelector(".product-code")?.innerText || "";
+      const specialPrice = productInfo && productInfo.querySelector(".product-price")?.innerText || "";
+      const regularPrice = productInfo && productInfo.querySelector(".product-regular-price")?.innerText || "";
+
+      const shortSpecifications = document.querySelector(".short-description");
+      const shortAttributes = shortSpecifications &&
+        [...shortSpecifications.querySelectorAll("ul li:not(:last-child)")]
+          .map(tag => tag.innerText)
+          .map(item => {
+            if (item.includes(':')) {
+              const [key, value] = item.split(':').map(str => str.trim());
+              return { [key]: value };
+            }
+            return null;
+          })
+          .filter(Boolean) || [];
 
 
-  await browser.close();
+      const specifications = document.querySelector("#specification");
 
-  return products;
+      const attributeTitles = specifications && [...specifications.querySelectorAll("td.name")].map(tag => tag.innerText) || [];
+      const attributeValues = specifications && [...specifications.querySelectorAll("td.value")].map(tag => tag.innerText) || [];
+      const attributes = attributeTitles.map((title, index) => ({
+        [title]: attributeValues[index] || null
+      }));
+
+      return {
+        imageUrls,
+        title,
+        reviews,
+        productId,
+        company: "StarTech",
+        specialPrice,
+        regularPrice,
+        attributes: {
+          ...Object.assign({}, ...Object.values(shortAttributes)),
+          ...Object.assign({}, ...Object.values(attributes))
+        },
+      }
+    });
+
+
+    await browser.close();
+
+    const regex = product.reviews.match(/\((\d+)\)/);
+    const reviewCount = regex ? parseInt(regex[1], 10) : 0;
+
+    product.reviews = `${reviewCount} reviews`
+    product.regularPrice = parsePrice(product.regularPrice);
+    product.specialPrice = parsePrice(product.specialPrice);
+
+    return product;
+  } catch (error) {
+    console.log("getStarTecSearchedProductDetails:", error)
+  }
 }
