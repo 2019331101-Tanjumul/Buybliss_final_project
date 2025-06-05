@@ -1,5 +1,6 @@
 ## How to run the project ? 
--Copy the reprository's link 
+- Copy the reprository's link
+- Check the branch , it should be  `main` branch. 
 - Go to your desired file location to your local file and then open terminal on the destination folder and type : `git clone <copied link>`
 
 - After cloning the repo open it with vscode using ` code . `
