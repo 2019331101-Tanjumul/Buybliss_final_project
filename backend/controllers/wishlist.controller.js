@@ -1,13 +1,33 @@
+// backend/controllers/wishlist.controller.js
+
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { WishItem } from "../models/wishlist.model.js";
 
 export const addToWishlist = async (req, res) => {
   try {
-    const { productDetailsLink, price, email } = req.body;
+    const { productDetailsLink, price, company, email } = req.body;
 
-    if (!productDetailsLink || !price || !email) {
+    if (!productDetailsLink) {
       return res.status(400).json(
-        new ApiResponse(400, {}, "All fields are required")
+        new ApiResponse(400, {}, "ProductDetailsLink is required")
+      );
+    }
+
+    if (!price) {
+      return res.status(400).json(
+        new ApiResponse(400, {}, "Price is required")
+      );
+    }
+
+    if (!company) {
+      return res.status(400).json(
+        new ApiResponse(400, {}, "Company is required")
+      );
+    }
+
+    if (!email) {
+      return res.status(400).json(
+        new ApiResponse(400, {}, "Email is required")
       );
     }
 

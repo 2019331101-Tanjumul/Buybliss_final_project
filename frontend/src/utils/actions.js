@@ -1,15 +1,20 @@
+// frontend/src/utils/actions.jsx
+
 import axios from "axios";
 
 export async function fetchProducts(searchKey, currentPage) {
   const response = await axios.get(`http://localhost:3000/products/${searchKey}/${currentPage}`);
-  console.log(response.data.data);
   return response.data.data;
 }
 
 export async function fetchProductDetails(url) {
   const response = await axios.get(`http://localhost:3000/products/${url}`);
-  console.log(response.data.data);
   return response.data.data;
+}
+
+export async function isAuthenticated() {
+  const response = await axios.get(`http://localhost:3000/auth/check-auth`, { withCredentials: true });
+  return response.data.data
 }
 
 export async function login(email, password) {
@@ -18,19 +23,28 @@ export async function login(email, password) {
 }
 
 export async function getCurrentUser() {
-  const response = await axios.get(`http://localhost:3000/users/current-user`, { withCredentials: true });
-  return response.data.data;
+  try {
+
+    const response = await axios.get(`http://localhost:3000/users/current-user`, { withCredentials: true });
+    return response.data.data;
+  } catch (error) {
+    console.log(error)
+    if (error.response.data.statusCode === 403) {
+      return null
+    }
+    throw error;
+  }
 }
 
 export async function logout() {
   const response = await axios.get(`http://localhost:3000/auth/logout`, { withCredentials: true });
-  return response.data.data;
+  return response.data;
 }
 
-export async function addToWishlist(productDetailsLink, price, email) {
+export async function addToWishlist(productDetailsLink, price, company, email) {
   const response = await axios.post(
     `http://localhost:3000/wishlist/add`,
-    { productDetailsLink, price, email },
+    { productDetailsLink, price, company, email },
     { withCredentials: true }
   );
   return response.data.data;

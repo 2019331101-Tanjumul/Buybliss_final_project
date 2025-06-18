@@ -113,7 +113,7 @@ export const getStarTecSearchedProductDetails = async (url) => {
     product.regularPrice = parsePrice(product.regularPrice);
     product.specialPrice = parsePrice(product.specialPrice);
 
-    return product;
+    return { ...product, productDetailsLink: `https://www.startech.com.bd/${url}`  };
   } catch (error) {
     console.log("getStarTecSearchedProductDetails:", error)
   }

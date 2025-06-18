@@ -2,6 +2,7 @@ import http from "http";
 import dotenv from "dotenv";
 import { connectDB } from "./db/index.js";
 import app from "./app.js";
+import { automateSendEmail } from "./utils/automation.js";
 
 dotenv.config({ path: "./config/.env" });
 
@@ -14,6 +15,7 @@ connectDB()
     server.listen(PORT, () => {
       console.log(`Server running at http://localhost:${PORT}`);
     });
+    automateSendEmail();
 
     server.on("error", (error) => {
       console.log("Unable to run server due to db connection error:", error)

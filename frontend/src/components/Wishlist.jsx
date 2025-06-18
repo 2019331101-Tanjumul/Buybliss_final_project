@@ -3,35 +3,35 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "./ui/Button";
-import { useUserStorage } from "../hooks/useLocalStorage";
 import { useWishlist } from "../context/WishlistContext";
 import { getWishlist, removeFromWishlist, fetchProductDetails } from "../utils/actions";
+import { useUserStorage } from "../hooks/useUserStorage";
+import { Spinner } from "./ui/Spinner";
 
 const Wishlist = () => {
   const navigate = useNavigate();
-  const { getUser } = useUserStorage();
   const { updateWishlistCount } = useWishlist();
   const [wishlistItems, setWishlistItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState({});
-  const user = getUser();
+  const user = useUserStorage().getUser();
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const items = await getWishlist(user.email);
         setWishlistItems(items);
 
-        // Fetch product details for each item
         const productDetails = {};
         for (const item of items) {
           const details = await fetchProductDetails(item.productDetailsLink);
           productDetails[item.productDetailsLink] = details;
         }
         setProducts(productDetails);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching wishlist:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -39,26 +39,18 @@ const Wishlist = () => {
     fetchData();
   }, [user?.email]);
 
-  if (!user) {
-    navigate("/");
-    return;
-  }
-
   const handleRemoveFromWishlist = async (productDetailsLink) => {
-    const user = getUser();
-    if (!user) return;
-
     try {
-      await removeFromWishlist(user.email, productDetailsLink);
+      await removeFromWishlist(user?.email, productDetailsLink);
       setWishlistItems((items) => items.filter((item) => item.productDetailsLink !== productDetailsLink));
-      updateWishlistCount();
+      updateWishlistCount(user?.email);
     } catch (error) {
       alert(error.response?.data?.message || "Failed to remove from wishlist");
     }
   };
 
   if (loading) {
-    return <div className="products-container">Loading...</div>;
+    return <Spinner />;
   }
 
   if (wishlistItems.length === 0) {
@@ -82,14 +74,18 @@ const Wishlist = () => {
 
           return (
             <article key={item.productDetailsLink} className="product">
-              <span className="company">{product.company}</span>
               <div className="product-img-container">
-                <img
-                  src={product.imageUrls[0]}
-                  alt={product.title}
-                  className="product-img"
-                  onClick={() => navigate(`/product-details/${item.productDetailsLink}`)}
-                />
+                <span className="company">
+                  {product.company === "Ryans" ? (
+                    <img src="/ryans-logo.svg" alt="company logo" />
+                  ) : (
+                    <img src="/star-tech-logo.png" alt="company logo" />
+                  )}
+                  <span>{product.company}</span>
+                </span>
+                <a href={`${product.productDetailsLink}`} target="_blank">
+                  <img src={product.imageUrls[0]} alt={product.title} className="product-img" />
+                </a>
               </div>
               <div className="product-content-container">
                 <div className="product-content">

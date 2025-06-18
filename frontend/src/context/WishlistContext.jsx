@@ -1,34 +1,39 @@
 // WishlistContext.jsx
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { getWishlist } from "../utils/actions";
-import { useUserStorage } from "../hooks/useLocalStorage";
 
 const WishlistContext = createContext();
 
 export const useWishlist = () => useContext(WishlistContext);
 
-export const WishlistProvider = ({ children }) => {
+export const WishlistProvider = ({ children, user }) => {
   const [wishlistCount, setWishlistCount] = useState(0);
-  const { getUser } = useUserStorage();
 
-  const updateWishlistCount = async () => {
-    const user = getUser();
-    if (user) {
-      try {
-        const items = await getWishlist(user.email);
+  const updateWishlistCount = useCallback(async () => {
+    try {
+      if (user?.email) {
+        const items = await getWishlist(user?.email);
+        console.log(items);
         setWishlistCount(items.length);
-      } catch (error) {
-        console.error("Error fetching wishlist count:", error);
+      } else {
+        setWishlistCount(0);
       }
-    } else {
-      setWishlistCount(0);
+    } catch (error) {
+      console.error("Error fetching wishlist count:", error);
     }
+  }, [user?.email]);
+
+  const clearWishlistCount = () => {
+    setWishlistCount(0);
   };
 
   useEffect(() => {
     updateWishlistCount();
-  }, []);
-
-  return <WishlistContext.Provider value={{ wishlistCount, updateWishlistCount }}>{children}</WishlistContext.Provider>;
+  }, [updateWishlistCount]);
+  return (
+    <WishlistContext.Provider value={{ wishlistCount, updateWishlistCount, clearWishlistCount }}>
+      {children}
+    </WishlistContext.Provider>
+  );
 };

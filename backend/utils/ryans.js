@@ -91,7 +91,7 @@ export const getRyansSearchedProductDetails = async (url) => {
     product.regularPrice = parsePrice(product.regularPrice);
     product.specialPrice = parsePrice(product.specialPrice);
 
-    return product;
+    return { ...product, productDetailsLink: `https://www.ryans.com/${url}`, };
   } catch (error) {
     console.log("getRyansSearchedProductDetails:", error)
     return null;

@@ -30,7 +30,7 @@ export const getSearchedProductDetails = async (req, res) => {
     }
     const ryansProductDetails = await getRyansSearchedProductDetails(url);
     const starTechProductDetails = await getStarTecSearchedProductDetails(url);
-    const productDetails = ryansProductDetails.productId ? ryansProductDetails : starTechProductDetails;
+    const productDetails = ryansProductDetails.title ? ryansProductDetails : starTechProductDetails;
 
     return res.status(200).json(new ApiResponse(200, productDetails));
   } catch (error) {

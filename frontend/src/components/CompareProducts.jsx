@@ -14,7 +14,8 @@ const CompareProducts = () => {
 
   useEffect(() => {
     setProducts(getProducts());
-  }, []);
+    console.log(getProducts());
+  }, [getProducts]);
 
   if (products.length === 0)
     return (
@@ -46,39 +47,54 @@ const CompareProducts = () => {
               </div>
             </th>
             {products.map((product) => (
-              <th key={product.productId}>
-                <div className="compared-product">
-                  <img src={product.imageUrls[0]} alt={product.title} className="compared-product-img" />
-                  <h2>{product.title}</h2>
-                  <p>Product Id: {product.productId}</p>
-                  <Button
-                    className="close-modal-btn"
-                    onClick={() => {
-                      removeProduct(`${product.company}${product.productId}`);
-                      setProducts(getProducts());
-                      updateCompareCount();
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="1.5rem"
-                      height="1.5rem"
-                      viewBox="0 0 24 24"
-                      fill="none"
+              <th key={product.key}>
+                <a href={product.productDetailsLink} target="_blank">
+                  <div className="compared-product">
+                    <span className="company">
+                      {product.company === "Ryans" ? (
+                        <img src="/ryans-logo.svg" alt="company logo" />
+                      ) : (
+                        <img src="/star-tech-logo.png" alt="company logo" />
+                      )}
+                      <span>{product.company}</span>
+                    </span>
+                    <img src={product.imageUrls[0]} alt={product.title} className="compared-product-img" />
+                    <div className="compared-product-content">
+                      {/* Change the color */}
+                      {product.specialPrice && <p className="special-price">Special Price: {product.specialPrice}</p>}
+                      <p>Regular Price: {product.regularPrice}</p>
+                      <h2>{product.title}</h2>
+                      <p>Product Id: {product.productId}</p>
+                    </div>
+                    <Button
+                      className="close-modal-btn"
+                      onClick={() => {
+                        removeProduct(`${product.key}`);
+                        setProducts(getProducts());
+                        updateCompareCount();
+                      }}
                     >
-                      <g id="Menu / Close_SM">
-                        <path
-                          id="Vector"
-                          d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16"
-                          stroke="oklch(63.7% 0.237 25.331)"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </g>
-                    </svg>
-                  </Button>
-                </div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1.5rem"
+                        height="1.5rem"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <g id="Menu / Close_SM">
+                          <path
+                            id="Vector"
+                            d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16"
+                            stroke="oklch(63.7% 0.237 25.331)"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </g>
+                      </svg>
+                    </Button>
+                  </div>
+                </a>
               </th>
             ))}
           </tr>

@@ -2,24 +2,23 @@
 
 import { Link } from "react-router";
 import { Button } from "./ui/Button";
-import { useUserStorage } from "../hooks/useLocalStorage";
 import { useWishlist } from "../context/WishlistContext";
 import { useCompare } from "../context/CompareContext";
 import { useCompareStorage } from "../hooks/useCompareStorage";
 import { addToWishlist, fetchProductDetails } from "../utils/actions";
 import { useState } from "react";
+import { useUserStorage } from "../hooks/useUserStorage";
 
 const Product = ({ imageUrl, title, price, discount, company, productDetailsLink, setShowLogin }) => {
-  const { getUser } = useUserStorage();
   const { updateWishlistCount } = useWishlist();
   const { updateCompareCount } = useCompare();
   const { addProduct } = useCompareStorage();
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
   const [isAddingToCompare, setIsAddingToCompare] = useState(false);
   const productId = productDetailsLink.split("/").pop();
+  const user = useUserStorage().getUser();
 
   const handleAddToWishlist = async () => {
-    const user = getUser();
     if (!user) {
       setShowLogin(true);
       return;
@@ -27,7 +26,7 @@ const Product = ({ imageUrl, title, price, discount, company, productDetailsLink
     setIsAddingToWishlist(true);
     try {
       await addToWishlist(productId, price, company, user.email);
-      updateWishlistCount();
+      updateWishlistCount(user.email);
     } catch (error) {
       alert(error.response?.data?.message || "Failed to add to wishlist");
     }
@@ -38,7 +37,7 @@ const Product = ({ imageUrl, title, price, discount, company, productDetailsLink
     setIsAddingToCompare(true);
     try {
       const product = await fetchProductDetails(productId);
-      addProduct(product, `${company}${productDetailsLink.split("/").pop()}`);
+      addProduct({ ...product, productDetailsLink }, `${company}${productId}`);
       updateCompareCount();
     } catch (error) {
       console.error("Error adding to compare:", error);
@@ -48,11 +47,21 @@ const Product = ({ imageUrl, title, price, discount, company, productDetailsLink
 
   return (
     <article className="product">
-      <span className="company">{company}</span>
       <div className="product-img-container">
-        <Link to={`/product-details/${productDetailsLink.split("/").pop()}`} target="_blank">
+        <span className="company">
+          {company === "Ryans" ? (
+            <img src="/ryans-logo.svg" alt="company logo" />
+          ) : (
+            <img src="/star-tech-logo.png" alt="company logo" />
+          )}
+          <span>{company}</span>
+        </span>
+        {/* <Link to={`/product-details/${productDetailsLink.split("/").pop()}`} target="_blank">
           <img src={imageUrl} alt={title} className="product-img" />
-        </Link>
+        </Link> */}
+        <a href={`${productDetailsLink}`} target="_blank">
+          <img src={imageUrl} alt={title} className="product-img" />
+        </a>
       </div>
       <div className="product-content-container">
         <div className="product-content">

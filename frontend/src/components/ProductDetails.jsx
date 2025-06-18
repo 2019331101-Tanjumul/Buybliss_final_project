@@ -6,13 +6,12 @@ import { useCompareStorage } from "../hooks/useCompareStorage";
 import { fetchProductDetails, addToWishlist } from "../utils/actions";
 import { Button } from "../components/ui/Button";
 import { Ratings } from "./Ratings";
-import { useUserStorage } from "../hooks/useLocalStorage";
 import { useWishlist } from "../context/WishlistContext";
 import { useCompare } from "../context/CompareContext";
+import { useUserStorage } from "../hooks/useUserStorage";
 
 const ProductDetails = () => {
   const { setShowLogin } = useOutletContext();
-  const { getUser } = useUserStorage();
   const { addProduct } = useCompareStorage();
   const { updateWishlistCount } = useWishlist();
   const { updateCompareCount } = useCompare();
@@ -21,6 +20,7 @@ const ProductDetails = () => {
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
   const [isAddingToCompare, setIsAddingToCompare] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const user = useUserStorage().getUser();
 
   useEffect(() => {
     setIsLoading(true);
@@ -29,7 +29,6 @@ const ProductDetails = () => {
   }, [productId]);
 
   const handleAddToWishlist = async () => {
-    const user = getUser();
     if (!user) {
       setShowLogin(true);
       return;
@@ -37,7 +36,7 @@ const ProductDetails = () => {
     setIsAddingToWishlist(true);
     try {
       await addToWishlist(productId, product.regularPrice || product.specialPrice, product.company, user.email);
-      updateWishlistCount();
+      updateWishlistCount(user.email);
     } catch (error) {
       alert(error.response?.data?.message || "Failed to add to wishlist");
     }
@@ -47,7 +46,7 @@ const ProductDetails = () => {
   const handleAddToCompare = async () => {
     setIsAddingToCompare(true);
     try {
-      addProduct(product, `${product.company}${productId}`);
+      addProduct({ ...product, productDetailsLink: product.productDetailsLink }, `${product.company}${productId}`);
       updateCompareCount();
     } catch (error) {
       console.error("Error adding to compare:", error);

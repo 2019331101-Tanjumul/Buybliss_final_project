@@ -3,20 +3,21 @@ import { Button } from "../ui/Button";
 import { logout } from "../../utils/actions";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCompare } from "../../context/CompareContext";
+import { useUserStorage } from "../../hooks/useUserStorage";
 
-const Header = ({ setShowLogin, currentUser, setCurrentUser, getUser, removeUser }) => {
+const Header = ({ setShowLogin, user }) => {
   const navigate = useNavigate();
-  const { wishlistCount, updateWishlistCount } = useWishlist();
-  const { compareCount, updateCompareCount } = useCompare();
+  const { wishlistCount, clearWishlistCount } = useWishlist();
+  const { compareCount } = useCompare();
+  const { removeUser } = useUserStorage();
 
   async function handleLogout() {
-    await logout();
-    removeUser();
-    setCurrentUser(getUser());
-    // Reset wishlist and compare counts after logout
-    updateWishlistCount();
-    updateCompareCount();
-    navigate("/");
+    const info = await logout();
+    if (info.statusCode === 200) {
+      removeUser();
+      clearWishlistCount();
+      navigate("/");
+    }
   }
 
   return (
@@ -59,7 +60,7 @@ const Header = ({ setShowLogin, currentUser, setCurrentUser, getUser, removeUser
             {compareCount > 0 && <span className="compare-count">{compareCount}</span>}
           </div>
         </Link>
-        <Link to={"/wishlist"} className="wishlist-link">
+        <Link to={user ? "/wishlist" : "/"} className="wishlist-link">
           <div className="wishlist-container">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -82,13 +83,13 @@ const Header = ({ setShowLogin, currentUser, setCurrentUser, getUser, removeUser
             {wishlistCount > 0 && <span className="wishlist-count">{wishlistCount}</span>}
           </div>
         </Link>
-        {currentUser ? (
+        {user ? (
           <Button className="logout-btn" onClick={handleLogout}>
             Logout
           </Button>
         ) : (
           <Button className="login-btn" onClick={() => setShowLogin(true)}>
-            Login
+            Login/Register
           </Button>
         )}
       </nav>

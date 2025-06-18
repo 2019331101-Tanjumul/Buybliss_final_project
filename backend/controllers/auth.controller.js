@@ -59,3 +59,20 @@ export async function logout(req, res) {
     return res.status(error.status || 500).json(new ApiResponse(400, {}, error.message || "Internal server error"));
   }
 }
+
+export async function isAuthenticated(req, res) {
+  const sessionId = req.cookies?.session_id;
+  if (!sessionId) {
+    req.userId = undefined;
+    return res.status(200).json(new ApiResponse(200, { data: false }));
+  }
+
+
+  const session = await Session.findOne({ sessionId });
+
+  if (!session || session.expiresAt < new Date()) {
+    req.userId = undefined;
+    return res.status(200).json(new ApiResponse(200, { data: false }));
+  }
+  return res.status(200).json(new ApiResponse(200, { data: true }));
+}

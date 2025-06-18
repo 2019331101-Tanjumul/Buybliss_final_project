@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/Button";
 import { login } from "../utils/actions";
-import { useUserStorage } from "../hooks/useLocalStorage";
+import { useWishlist } from "../context/WishlistContext";
+import { useUserStorage } from "../hooks/useUserStorage";
 
-export const Login = ({ isOpen, onClose, setCurrentUser }) => {
-  const { setUser } = useUserStorage();
+export const Login = ({ isOpen, onClose, setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { updateWishlistCount } = useWishlist();
+  const userStorage = useUserStorage();
 
   useEffect(() => {
     if (isOpen) {
@@ -35,12 +37,12 @@ export const Login = ({ isOpen, onClose, setCurrentUser }) => {
     // console.log(String(email), String(password));
     setLoading(true);
     const data = await login(String(email), String(password));
-    console.log("handleSubmit", data);
-    setLoading(false);
     if (data.user.email) {
+      await userStorage.setUser();
       setUser(data.user);
-      setCurrentUser(data.user);
+      await updateWishlistCount();
       onClose();
+      setLoading(false);
     }
   }
 

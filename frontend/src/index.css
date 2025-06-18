@@ -155,19 +155,15 @@ footer {
 
 footer a {
   color: oklch(25.7% 0.09 281.288);
-  border: 1px solid oklch(45.7% 0.24 277.023); /* blue border */
-  border-radius: 0.5rem;                       /* small radius */
-  padding: 0.25rem 0.5rem;                     /* padding */
+  border-bottom: 0.125rem solid transparent;
   transition: all 0.3s ease;
-  opacity: 100%;
+  opacity: 75%;
 }
 
 footer a:hover {
-  background-color: oklch(45.7% 0.24 277.023);
-  color: white;
-  border-color: oklch(35% 0.2 277);
+  border-color: oklch(25.7% 0.09 281.288);
+  opacity: 75%;
 }
-
 
 @media screen and (max-width: 1000px) {
   header {
