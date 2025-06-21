@@ -5,10 +5,10 @@ export function parsePrice(price) {
   // Match all number groups (e.g. 2,499 or 2599)
   const matches = value.match(/[\d,]+/g);
 
-  if (!matches || matches.length === 0) return "Out of Stock";
+  if (!matches || matches.length === 0) return "Out Of Stock";
 
   // Use the first match, remove commas, and convert to float
   const firstPrice = parseFloat(matches[0].replace(/,/g, ""));
 
-  return isNaN(firstPrice) || firstPrice === 0 ? "Out of Stock" : firstPrice;
+  return isNaN(firstPrice) || firstPrice === 0 ? "Out Of Stock" : firstPrice;
 }

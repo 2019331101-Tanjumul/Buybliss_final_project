@@ -1,13 +1,17 @@
-import puppeteer from "puppeteer";
+import puppeteerExtra from "puppeteer-extra";
+import Stealth from "puppeteer-extra-plugin-stealth";
 import { parsePrice } from "./converter.js";
+
+puppeteerExtra.use(Stealth())
 
 export const getRyansSearchedProducts = async (searchKey = "", currentPage = 1) => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteerExtra.launch();
     const page = await browser.newPage();
 
 
     const url = `https://www.ryans.com/search?q=${searchKey}&page=${currentPage}`;
+    // const url = `https://www.ryans.com/search?q=keyboard`;
     await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
 
     const products = await page.evaluate(() => {
@@ -34,7 +38,7 @@ export const getRyansSearchedProducts = async (searchKey = "", currentPage = 1) 
     });
 
 
-    await browser.close();
+    // await browser.close();
 
     products.data = products.data.map(p => ({
       ...p,
@@ -48,9 +52,11 @@ export const getRyansSearchedProducts = async (searchKey = "", currentPage = 1) 
   }
 }
 
+getRyansSearchedProducts();
+
 export const getRyansSearchedProductDetails = async (url) => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteerExtra.launch();
     const page = await browser.newPage();
 
     await page.goto(`https://www.ryans.com/${url}`, { timeout: 60000, waitUntil: "domcontentloaded" });

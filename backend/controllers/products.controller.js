@@ -1,6 +1,7 @@
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { getRyansSearchedProductDetails, getRyansSearchedProducts } from "../utils/ryans.js";
 import { getStarTecSearchedProductDetails, getStarTecSearchedProducts } from "../utils/star-tech.js";
+import { getTechLandSearchedProductDetails, getTechLandSearchedProducts } from "../utils/tech-land.js";
 
 
 export const getSearchedProducts = async (req, res) => {
@@ -12,8 +13,9 @@ export const getSearchedProducts = async (req, res) => {
     }
     const ryansSearchedProducts = await getRyansSearchedProducts(searchKey, currentPage);
     const starTechSearchedProducts = await getStarTecSearchedProducts(searchKey, currentPage);
+    const techLandSearchedProducts = await getTechLandSearchedProducts(searchKey, currentPage);
 
-    const products = [...ryansSearchedProducts, ...starTechSearchedProducts]
+    const products = [...ryansSearchedProducts, ...starTechSearchedProducts, ...techLandSearchedProducts]
 
     res.status(200).json(new ApiResponse(200, products))
   } catch (error) {
@@ -30,7 +32,8 @@ export const getSearchedProductDetails = async (req, res) => {
     }
     const ryansProductDetails = await getRyansSearchedProductDetails(url);
     const starTechProductDetails = await getStarTecSearchedProductDetails(url);
-    const productDetails = ryansProductDetails.title ? ryansProductDetails : starTechProductDetails;
+    const techLandSearchedProducts = await getTechLandSearchedProductDetails(url);
+    const productDetails = ryansProductDetails?.title ? ryansProductDetails : starTechProductDetails?.title ? starTechProductDetails : techLandSearchedProducts;
 
     return res.status(200).json(new ApiResponse(200, productDetails));
   } catch (error) {

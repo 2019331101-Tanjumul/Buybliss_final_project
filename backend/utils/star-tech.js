@@ -1,9 +1,12 @@
-import puppeteer from "puppeteer";
+import puppeteerExtra from "puppeteer-extra";
+import Stealth from "puppeteer-extra-plugin-stealth";
 import { parsePrice } from "./converter.js";
+
+puppeteerExtra.use(Stealth())
 
 export const getStarTecSearchedProducts = async (searchKey = "", currentPage = 1) => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteerExtra.launch();
     const page = await browser.newPage();
 
     const url = `https://www.startech.com.bd/product/search?search=${searchKey}&page=${currentPage}`;
@@ -51,7 +54,7 @@ export const getStarTecSearchedProducts = async (searchKey = "", currentPage = 1
 
 export const getStarTecSearchedProductDetails = async (url) => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteerExtra.launch();
     const page = await browser.newPage();
 
     await page.goto(`https://www.startech.com.bd/${url}`, { timeout: 60000, waitUntil: "domcontentloaded" });
