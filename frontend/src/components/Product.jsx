@@ -8,7 +8,9 @@ import { useCompareStorage } from "../hooks/useCompareStorage";
 import { addToWishlist, fetchProductDetails } from "../utils/actions";
 import { useState } from "react";
 import { useUserStorage } from "../hooks/useUserStorage";
-import { CompanyLogo } from "./CompanyLogo";
+
+
+
 
 const Product = ({ imageUrl, title, price, discount, company, productDetailsLink, setShowLogin }) => {
   const { updateWishlistCount } = useWishlist();
@@ -50,7 +52,7 @@ const Product = ({ imageUrl, title, price, discount, company, productDetailsLink
     <article className="product">
       <div className="product-img-container">
         <span className="company">
-          <CompanyLogo company={company} />
+
           <span>{company}</span>
         </span>
         {/* <Link to={`/product-details/${productDetailsLink.split("/").pop()}`} target="_blank">

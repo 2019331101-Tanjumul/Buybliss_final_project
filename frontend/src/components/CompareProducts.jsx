@@ -4,7 +4,9 @@ import { comparisonTable } from "../utils/comparisonTable";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useCompare } from "../context/CompareContext";
-import { CompanyLogo } from "./CompanyLogo";
+
+
+
 
 const CompareProducts = () => {
   const navigate = useNavigate();
@@ -52,7 +54,14 @@ const CompareProducts = () => {
                 <a href={product.productDetailsLink} target="_blank">
                   <div className="compared-product">
                     <span className="company">
-                      <CompanyLogo company={product.company} />
+
+
+                      {product.company === "Ryans" ? (
+                        <img src="/ryans-logo.svg" alt="company logo" />
+                      ) : (
+                        <img src="/star-tech-logo.png" alt="company logo" />
+                      )}
+
                       <span>{product.company}</span>
                     </span>
                     <img src={product.imageUrls[0]} alt={product.title} className="compared-product-img" />

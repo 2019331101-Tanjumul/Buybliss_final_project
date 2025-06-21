@@ -1,13 +1,19 @@
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { getRyansHomeProduct, getRyansSearchedProduct } from "../utils/ryans.js";
-import { getStarTechHomeProducts, getStarTecSearchedProducts } from "../utils/star-tech.js";
+import { getRyansSearchedProductDetails, getRyansSearchedProducts } from "../utils/ryans.js";
+import { getStarTecSearchedProductDetails, getStarTecSearchedProducts } from "../utils/star-tech.js";
 
-export const getHomeProducts = async (_, res) => {
+
+export const getSearchedProducts = async (req, res) => {
   try {
-    const ryansHomeProducts = await getRyansHomeProduct();
-    const starTechHomeProducts = await getStarTechHomeProducts();
+    const { searchKey, currentPage } = req.params;
+    if (!searchKey) {
+      res.status(400).json({ message: "Search key is required" })
+      return;
+    }
+    const ryansSearchedProducts = await getRyansSearchedProducts(searchKey, currentPage);
+    const starTechSearchedProducts = await getStarTecSearchedProducts(searchKey, currentPage);
 
-    const products = [...ryansHomeProducts.data, ...starTechHomeProducts.data]
+    const products = [...ryansSearchedProducts, ...starTechSearchedProducts]
 
     res.status(200).json(new ApiResponse(200, products))
   } catch (error) {
@@ -16,19 +22,17 @@ export const getHomeProducts = async (_, res) => {
   }
 }
 
-export const getSearchedProducts = async (req, res) => {
+export const getSearchedProductDetails = async (req, res) => {
   try {
-    const { searchKey } = req.params;
-    if (!searchKey) {
-      res.status(400).json({ message: "Search key is required" })
-      return;
+    const { url } = req.params;
+    if (!url) {
+      return res.status(400).json({ message: "Url is required" })
     }
-    const ryansSearchedProducts = await getRyansSearchedProduct(searchKey);
-    const starTechSearchedProducts = await getStarTecSearchedProducts(searchKey);
+    const ryansProductDetails = await getRyansSearchedProductDetails(url);
+    const starTechProductDetails = await getStarTecSearchedProductDetails(url);
+    const productDetails = ryansProductDetails.title ? ryansProductDetails : starTechProductDetails;
 
-    const products = [...ryansSearchedProducts.data, ...starTechSearchedProducts.data]
-
-    res.status(200).json(new ApiResponse(200, products))
+    return res.status(200).json(new ApiResponse(200, productDetails));
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message })

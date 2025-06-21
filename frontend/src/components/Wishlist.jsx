@@ -7,7 +7,7 @@ import { useWishlist } from "../context/WishlistContext";
 import { getWishlist, removeFromWishlist, fetchProductDetails } from "../utils/actions";
 import { useUserStorage } from "../hooks/useUserStorage";
 import { Spinner } from "./ui/Spinner";
-import { CompanyLogo } from "./CompanyLogo";
+
 
 const Wishlist = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Wishlist = () => {
   const user = useUserStorage().getUser();
 
   useEffect(() => {
-    if (!user?.email) return;
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -29,7 +29,7 @@ const Wishlist = () => {
         for (const item of items) {
           const details = await fetchProductDetails(item.productDetailsLink);
           productDetails[item.productDetailsLink] = details;
-          console.log(details);
+
         }
         setProducts(productDetails);
       } catch (error) {
@@ -79,7 +79,7 @@ const Wishlist = () => {
             <article key={item.productDetailsLink} className="product">
               <div className="product-img-container">
                 <span className="company">
-                  <CompanyLogo company={product.company} />
+
                   <span>{product.company}</span>
                 </span>
                 <a href={`${product.productDetailsLink}`} target="_blank">
