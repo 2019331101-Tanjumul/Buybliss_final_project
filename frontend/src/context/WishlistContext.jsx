@@ -14,7 +14,7 @@ export const WishlistProvider = ({ children, user }) => {
     try {
       if (user?.email) {
         const items = await getWishlist(user?.email);
-        console.log(items);
+
         setWishlistCount(items.length);
       } else {
         setWishlistCount(0);
