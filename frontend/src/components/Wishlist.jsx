@@ -8,6 +8,7 @@ import { getWishlist, removeFromWishlist, fetchProductDetails } from "../utils/a
 import { useUserStorage } from "../hooks/useUserStorage";
 import { Spinner } from "./ui/Spinner";
 
+
 const Wishlist = () => {
   const navigate = useNavigate();
   const { updateWishlistCount } = useWishlist();
@@ -17,6 +18,7 @@ const Wishlist = () => {
   const user = useUserStorage().getUser();
 
   useEffect(() => {
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -27,6 +29,7 @@ const Wishlist = () => {
         for (const item of items) {
           const details = await fetchProductDetails(item.productDetailsLink);
           productDetails[item.productDetailsLink] = details;
+
         }
         setProducts(productDetails);
       } catch (error) {
@@ -76,11 +79,7 @@ const Wishlist = () => {
             <article key={item.productDetailsLink} className="product">
               <div className="product-img-container">
                 <span className="company">
-                  {product.company === "Ryans" ? (
-                    <img src="/ryans-logo.svg" alt="company logo" />
-                  ) : (
-                    <img src="/star-tech-logo.png" alt="company logo" />
-                  )}
+
                   <span>{product.company}</span>
                 </span>
                 <a href={`${product.productDetailsLink}`} target="_blank">
