@@ -571,6 +571,23 @@ img {
   gap: 1rem;
 }
 
+.btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #342be1;
+  color: white;
+  border: none;
+  border-radius: 0.7rem;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  font-weight: bold;
+}
+
+.sprt{ 
+font-size: 28px;
+text-decoration: none;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
