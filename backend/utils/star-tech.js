@@ -1,12 +1,9 @@
-import puppeteerExtra from "puppeteer-extra";
-import Stealth from "puppeteer-extra-plugin-stealth";
 import { parsePrice } from "./converter.js";
+import { launchBrowser } from "./puppeteer-browser.js";
 
-puppeteerExtra.use(Stealth())
-
-export const getStarTecSearchedProducts = async (searchKey = "", currentPage = 1) => {
+export const getStarTechSearchedProducts = async (searchKey = "", currentPage = 1) => {
   try {
-    const browser = await puppeteerExtra.launch();
+    const browser = await launchBrowser();
     const page = await browser.newPage();
 
     const url = `https://www.startech.com.bd/product/search?search=${searchKey}&page=${currentPage}`;
@@ -47,14 +44,14 @@ export const getStarTecSearchedProducts = async (searchKey = "", currentPage = 1
 
     return products.data;
   } catch (error) {
-    console.log("getStarTecSearchedProducts:", error);
+    console.log("getStarTechSearchedProducts:", error);
     return null;
   }
 }
 
-export const getStarTecSearchedProductDetails = async (url) => {
+export const getStarTechSearchedProductDetails = async (url) => {
   try {
-    const browser = await puppeteerExtra.launch();
+    const browser = await launchBrowser();
     const page = await browser.newPage();
 
     await page.goto(`https://www.startech.com.bd/${url}`, { timeout: 60000, waitUntil: "domcontentloaded" });
@@ -118,6 +115,6 @@ export const getStarTecSearchedProductDetails = async (url) => {
 
     return { ...product, productDetailsLink: `https://www.startech.com.bd/${url}`  };
   } catch (error) {
-    console.log("getStarTecSearchedProductDetails:", error)
+    console.log("getStarTechSearchedProductDetails:", error)
   }
 }

@@ -4,6 +4,6 @@ import { getSearchedProductDetails, getSearchedProducts } from "../controllers/p
 const productRoute = Router();
 
 productRoute.route("/:searchKey/:currentPage").get(getSearchedProducts);
-productRoute.route("/:url").get(getSearchedProductDetails);
+productRoute.route("/details/:url/:company").get(getSearchedProductDetails);
 
 export { productRoute };

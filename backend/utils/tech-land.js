@@ -1,12 +1,9 @@
-import puppeteerExtra from "puppeteer-extra";
-import Stealth from "puppeteer-extra-plugin-stealth";
 import { parsePrice } from "./converter.js";
-
-puppeteerExtra.use(Stealth())
+import { launchBrowser} from "./puppeteer-browser.js";
 
 export const getTechLandSearchedProducts = async (searchKey = "", currentPage = 1) => {
   try {
-    const browser = await puppeteerExtra.launch();
+    const browser = await launchBrowser();
     const page = await browser.newPage();
 
     const url = `https://www.techlandbd.com/index.php?route=product/search&search=${searchKey}&page=${currentPage}`;
@@ -22,7 +19,7 @@ export const getTechLandSearchedProducts = async (searchKey = "", currentPage = 
           const title = product.querySelector(".caption .name a").innerText;
           const price = product.querySelector(".caption .price .price-new")?.innerText || product.querySelector(".caption .price .price-old")?.innerText || product.querySelector(".caption .price .price-normal")?.innerText;
           const discount = product.querySelector(".mark")?.innerText || "";
-          const productDetailsLink = product.querySelector(".product-img")?.getAttribute("href") || "";
+          const productDetailsLink = product.querySelector(".product-img")?.getAttribute("href").split("?")[0] || "";
 
 
           return {
@@ -47,14 +44,14 @@ export const getTechLandSearchedProducts = async (searchKey = "", currentPage = 
 
     return products.data;
   } catch (error) {
-    console.log("getStarTecSearchedProducts:", error);
+    console.log("getTechLandSearchedProducts:", error);
     return null;
   }
 }
 
 export const getTechLandSearchedProductDetails = async (url) => {
   try {
-    const browser = await puppeteerExtra.launch();
+    const browser = await launchBrowser();
     const page = await browser.newPage();
 
     await page.goto(`https://www.techlandbd.com/${url}`, { timeout: 60000, waitUntil: "domcontentloaded" });
@@ -72,13 +69,10 @@ export const getTechLandSearchedProductDetails = async (url) => {
 
       const specifications = document.querySelector(".block-attributes table");
       const tables = document.querySelector(".block-description")
-      console.log("specifications:", specifications)
       const descriptions = tables?.querySelectorAll("table")?.[1]
 
       const attributeTitles = specifications ? [...specifications.querySelectorAll(".attribute-name")].map(tag => tag.innerText) : descriptions ? [...descriptions.querySelectorAll("tbody tr td:first-child")].map(tag => tag.innerText) : [];
-      console.log("titles:", attributeTitles);
       const attributeValues = specifications ? [...specifications.querySelectorAll(".attribute-value")].map(tag => tag.innerText) : descriptions ? [...descriptions.querySelectorAll("tbody tr td:last-child")].map(tag => tag.innerText) : []
-      console.log("values:", attributeValues);
       const attributes = attributeTitles?.map((title, index) => ({
         [title]: attributeValues[index] || null
       }));
@@ -98,7 +92,7 @@ export const getTechLandSearchedProductDetails = async (url) => {
     });
 
 
-    // await browser.close();
+    await browser.close();
 
     const regex = product.reviews.match(/\((\d+)\)/);
     const reviewCount = regex ? parseInt(regex[1], 10) : 0;
@@ -109,6 +103,6 @@ export const getTechLandSearchedProductDetails = async (url) => {
 
     return { ...product, productDetailsLink: `https://www.techlandbd.com/${url}` };
   } catch (error) {
-    console.log("getStarTecSearchedProductDetails:", error)
+    console.log("getTechLandSearchedProducts:", error)
   }
 }

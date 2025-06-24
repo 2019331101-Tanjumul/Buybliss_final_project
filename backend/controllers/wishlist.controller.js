@@ -41,6 +41,7 @@ export const addToWishlist = async (req, res) => {
 
     const wishItem = await WishItem.create({
       productDetailsLink,
+      company,
       price,
       email
     });

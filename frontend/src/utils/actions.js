@@ -7,8 +7,8 @@ export async function fetchProducts(searchKey, currentPage) {
   return response.data.data;
 }
 
-export async function fetchProductDetails(url) {
-  const response = await axios.get(`http://localhost:3000/products/${url}`);
+export async function fetchProductDetails(url, company) {
+  const response = await axios.get(`http://localhost:3000/products//details/${url}/${company}`);
   return response.data.data;
 }
 
