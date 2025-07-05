@@ -2,12 +2,29 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,600;1,9..40,600&display=swap");
 
 * {
-	padding: 0;
-	margin: 0;
-	box-sizing: border-box;
-	font-family: "Roboto", sans-serif;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Roboto", sans-serif;
 }
 
+
+.search-content{ 
+  margin:30px; 
+
+
+}
+
+.pal{ 
+  height: 80%;   
+  width: 80%;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  align-self: center;
+
+
+}
 /* Default Styles */
 
 h1,
@@ -16,171 +33,198 @@ h3,
 h4,
 h5,
 h6 {
-	font-size: 1rem;
-	font-weight: normal;
+  font-size: 1rem;
+  font-weight: normal;
 }
 
 a {
-	color: #000;
-	text-decoration: none;
+  color: #000;
+  text-decoration: none;
 }
 
 a:active {
-	color: inherit;
+  color: inherit;
 }
 
 input {
-	width: 100%;
-	font-size: 1rem;
-	color: #333;
-	padding: 1rem 1.5rem;
-	border: 0.125rem solid #333;
-	border-radius: 999rem;
+  width: 100%;
+  font-size: 1rem;
+  color: #333;
+  padding: 1rem 1.5rem;
+  border: 0.125rem solid #333;
+  border-radius: 999rem;
 }
 
 input:focus {
-	outline: 0.125rem solid #33333380;
+  outline: 0.125rem solid #33333380;
 }
 
 button {
-	width: fit-content;
-	font-size: 1rem;
-	background: oklch(45.7% 0.24 277.023);
-	color: #fff;
-	padding: 0.75rem 2rem;
-	border: none;
-	outline: none;
-	border-radius: 999rem;
-	cursor: pointer;
+  width: fit-content;
+  font-size: 1rem;
+  background: oklch(45.7% 0.24 277.023);
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border: none;
+  outline: none;
+  border-radius: 999rem;
+  cursor: pointer;
 
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button:hover {
-	outline: 0.125rem solid oklch(78.5% 0.115 274.713);
+  outline: 0.125rem solid oklch(78.5% 0.115 274.713);
 }
 
 button:disabled {
-	background-color: oklch(87% 0 0);
+  background-color: oklch(87% 0 0);
 }
 
 button:disabled:hover {
-	outline: 0.125rem solid oklch(92.2% 0 0);
+  outline: 0.125rem solid oklch(92.2% 0 0);
 }
 
 /* Default Styles */
 
 main {
-	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
-	gap: 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 header {
-	height: 5rem;
-	background: #fffffff0;
-	padding-inline: 5rem;
-	border: 0.01rem solid #888;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+  height: 5rem;
+  background: #fffffff0;
+  padding-inline: 5rem;
+  border: 0.01rem solid #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
 nav {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
 }
 
 form {
-	max-width: 35rem;
-	background-attachment: fixed;
-	background-color: #fff;
-	padding: 3rem;
-	margin: 5rem auto;
-	box-shadow: 0 0 0.5rem #00000015;
-	border-radius: 1rem;
+  width: 100%;
+  max-width: 35rem;
+  background-attachment: fixed;
+  background-color: #fff;
+  padding: 3rem;
+  margin: 1rem;
+  box-shadow: 0 0 0.5rem #00000015;
+  border-radius: 1rem;
 
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
 
-	position: relative;
-	z-index: 1000;
+  position: relative;
+  z-index: 1000;
 }
 
 form h1 {
-	font-family: "DM Sans", sans-serif;
-	font-size: 1.75rem;
+  font-family: "DM Sans", sans-serif;
+  font-size: 1.75rem;
 }
 
 form p {
-	font-weight: lighter;
-	color: #888;
+  font-weight: lighter;
+  color: #888;
 }
 
 form div {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	gap: 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 form input {
-	padding: 0.75rem 1.25rem;
-	border-width: 0.0625rem;
-}
-
-form article {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-}
-
-form a {
-	font-weight: normal;
-	color: #4f46e5;
-}
-
-form a:hover {
-  border-bottom: 0.125rem solid #4f46e5;
+  padding: 0.75rem 1.25rem;
+  border-width: 0.0625rem;
 }
 
 footer {
-	height: 5rem;
-	border: 0.01rem solid #888;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 2rem;
+  display: flex;
+  justify-content: space-between; /* Push heading left, logos right */
+  align-items: center;            /* Vertically center everything */
+  padding: 20px;
+  background-color: #9e83f5;
+  height: 200px;
+  width: 100%;
+}
+
+.tss {
+  font-size: 1.5rem;
+  color: white;
+  margin-left: 20px;
+  text-decoration: underline;
+  text-shadow: #e54949;
+  font-weight: lighter;
+
+
 }
 
 footer a {
-	color: oklch(25.7% 0.09 281.288);
-	border-bottom: 0.125rem solid transparent;
-	transition: all 0.3s ease;
-	opacity: 75%;
+  color: oklch(25.7% 0.09 281.288);
+  border-bottom: 0.125rem solid transparent;
+  transition: all 0.3s ease;
 }
 
 footer a:hover {
-	border-color: oklch(25.7% 0.09 281.288);
-	opacity: 75%;
+  border-color: oklch(25.7% 0.09 281.288);
+  opacity: 75%;
 }
 
+.foot-logo {
+ display: grid ;
+  grid-template-columns: repeat(5, 150px); /* 5 columns */
+  grid-template-rows: repeat(2, auto);  /* 2 rows */
+  gap: 10px;                             /* space between images */
+  padding: 10px;
+  padding-bottom: 20px; 
+  background-color:#9e83f5;             /* optional: light background */
+  justify-items: center;                /* center items horizontally */
+  align-items: center;                  /* center items vertically */
+  justify-content:center;              /* to center all the logos or take the logos to end*/
+  height: 200px;
+  width: 100%;
+}
+
+
+.foot-logo img {
+
+  max-width:100px; /* adjust as needed */
+  height: auto;     /* maintain aspect ratio */
+}
+.binary-big {
+  width: 70px;
+  height: auto;
+}
+
+.skyland-big{ 
+  width: 200px;
+  height: auto;
+}
 @media screen and (max-width: 1000px) {
-	header {
-		padding-inline: 1rem;
-	}
+  header {
+    padding-inline: 1rem;
+  }
 }
