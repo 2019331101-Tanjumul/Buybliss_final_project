@@ -4,6 +4,6 @@ import { sessionMiddleware } from "../middlewares/session.middleware.js"
 
 const userRoute = Router();
 
-userRoute.route("/current-user").get(sessionMiddleware, getCurrentUser);
+userRoute.route("/current-user").get(getCurrentUser);
 
 export { userRoute };

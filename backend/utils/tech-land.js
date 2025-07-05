@@ -1,25 +1,25 @@
 import { parsePrice } from "./converter.js";
-import { launchBrowser} from "./puppeteer-browser.js";
+import { launchBrowser } from "./puppeteer-browser.js";
+import { safeGoto } from "./safe-goto.js";
 
-export const getTechLandSearchedProducts = async (searchKey = "", currentPage = 1) => {
+export const getTechLandSearchedProducts = async (page, searchKey = "", currentPage = 1) => {
   try {
-    const browser = await launchBrowser();
-    const page = await browser.newPage();
+    const url = `https://www.techlandbd.com/search/advance/product/result/${searchKey}?page=${currentPage}`
 
-    const url = `https://www.techlandbd.com/index.php?route=product/search&search=${searchKey}&page=${currentPage}`;
-    await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
+    const success = await safeGoto(page, url);
+    if (!success) return [];
 
 
     const products = await page.evaluate(() => {
-      const productElements = document.querySelectorAll(".product-thumb");
+      const productElements = document.querySelector(".grid").querySelectorAll(".bg-white");
 
       return {
         data: Array.from(productElements).map((product) => {
-          const imageUrl = product.querySelector(".product-img img")?.getAttribute("src") || "";
-          const title = product.querySelector(".caption .name a").innerText;
-          const price = product.querySelector(".caption .price .price-new")?.innerText || product.querySelector(".caption .price .price-old")?.innerText || product.querySelector(".caption .price .price-normal")?.innerText;
-          const discount = product.querySelector(".mark")?.innerText || "";
-          const productDetailsLink = product.querySelector(".product-img")?.getAttribute("href").split("?")[0] || "";
+          const imageUrl = product.querySelector("img")?.getAttribute("src") || "";
+          const title = product.querySelector("a.font-semibold")?.innerText;
+          const price = product.querySelector(".text-lg.font-bold")?.innerText || product.querySelector(".text-sm.line-through")?.innerText;
+          const discount = product.querySelector(".absolute")?.innerText || "";
+          const productDetailsLink = product.querySelector("a")?.getAttribute("href") || "";
 
 
           return {
@@ -34,9 +34,6 @@ export const getTechLandSearchedProducts = async (searchKey = "", currentPage = 
       }
     });
 
-
-    await browser.close();
-
     products.data = products.data.map(p => ({
       ...p,
       price: parsePrice(p.price),
@@ -49,30 +46,30 @@ export const getTechLandSearchedProducts = async (searchKey = "", currentPage = 
   }
 }
 
-export const getTechLandSearchedProductDetails = async (url) => {
+export const getTechLandSearchedProductDetails = async (productDetailsLink) => {
   try {
     const browser = await launchBrowser();
     const page = await browser.newPage();
 
-    await page.goto(`https://www.techlandbd.com/${url}`, { timeout: 60000, waitUntil: "domcontentloaded" });
+    // const productDetailsLink = 'https://www.techlandbd.com/logitech-k120-and-b100-combo'
+
+    await safeGoto(page, productDetailsLink);
 
 
     const product = await page.evaluate(() => {
-      const productInfo = document.querySelector(".product-info");
-      const imageUrls = productInfo && [...productInfo.querySelectorAll(".product-left .product-image img")].map(img => img.src) || [];
-      const title = productInfo && productInfo.querySelector("#product .title")?.innerText?.trim()?.split("\n")?.[0] || "";
-      const reviews = productInfo && productInfo.querySelector("table tbody:last-child tr:last-child td:last-child")?.innerText || "";
-      const productId = productInfo && productInfo.querySelector("table tbody:last-child tr:nth-child(4) td:last-child")?.innerText || "";
-      const specialPrice = productInfo && productInfo.querySelector("table tbody:last-child tr:nth-child(2) td:last-child")?.innerText || "";
-      const regularPrice = productInfo && productInfo.querySelector("table tbody:last-child tr:nth-child(1) td:last-child")?.innerText || "";
+      const productInfo = document.querySelector("main > div > div:nth-child(2)");
+      const imageUrls = productInfo && [...productInfo.querySelectorAll("#main-image")].map(img => img.src) || [];
+      const title = productInfo && productInfo.querySelector("h1")?.innerText?.trim()?.split("\n")?.[0] || "";
+      const reviews = "";
+      const specialPrice = productInfo && productInfo.querySelector(".text-xs.line-through")?.innerText ? productInfo && productInfo.querySelector(".text-lg.font-bold")?.innerText : "";
+      const regularPrice = productInfo && productInfo.querySelector(".text-xs.line-through")?.innerText || productInfo && productInfo.querySelector(".text-lg.font-bold")?.innerText || "";
 
 
-      const specifications = document.querySelector(".block-attributes table");
-      const tables = document.querySelector(".block-description")
-      const descriptions = tables?.querySelectorAll("table")?.[1]
+      const specifications = document.querySelector("#specification-tab > div > table")
+      const descriptions = document.querySelector("#description-tab > div > table:nth-child(2)")
 
-      const attributeTitles = specifications ? [...specifications.querySelectorAll(".attribute-name")].map(tag => tag.innerText) : descriptions ? [...descriptions.querySelectorAll("tbody tr td:first-child")].map(tag => tag.innerText) : [];
-      const attributeValues = specifications ? [...specifications.querySelectorAll(".attribute-value")].map(tag => tag.innerText) : descriptions ? [...descriptions.querySelectorAll("tbody tr td:last-child")].map(tag => tag.innerText) : []
+      const attributeTitles = specifications ? [...specifications.querySelectorAll("tbody tr.bg-gray-50 td:first-child")].map(tag => tag.innerText) : descriptions ? [...descriptions.querySelectorAll("tbody tr td:first-child")].map(tag => tag.innerText) : [];
+      const attributeValues = specifications ? [...specifications.querySelectorAll("tbody tr.bg-gray-50 td:last-child")].map(tag => tag.innerText) : descriptions ? [...descriptions.querySelectorAll("tbody tr td:last-child")].map(tag => tag.innerText) : []
       const attributes = attributeTitles?.map((title, index) => ({
         [title]: attributeValues[index] || null
       }));
@@ -81,7 +78,6 @@ export const getTechLandSearchedProductDetails = async (url) => {
         imageUrls,
         title,
         reviews,
-        productId,
         company: "TechLandBD",
         specialPrice,
         regularPrice,
@@ -92,7 +88,7 @@ export const getTechLandSearchedProductDetails = async (url) => {
     });
 
 
-    await browser.close();
+    browser.close();
 
     const regex = product.reviews.match(/\((\d+)\)/);
     const reviewCount = regex ? parseInt(regex[1], 10) : 0;
@@ -101,8 +97,8 @@ export const getTechLandSearchedProductDetails = async (url) => {
     product.regularPrice = parsePrice(product.regularPrice);
     product.specialPrice = parsePrice(product.specialPrice);
 
-    return { ...product, productDetailsLink: `https://www.techlandbd.com/${url}` };
+    return { ...product, productDetailsLink };
   } catch (error) {
-    console.log("getTechLandSearchedProducts:", error)
+    console.log("getTechLandSearchedProductDetails:", error)
   }
 }

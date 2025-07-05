@@ -1,14 +1,13 @@
 import { parsePrice } from "./converter.js";
 import { launchBrowser } from "./puppeteer-browser.js";
+import { safeGoto } from "./safe-goto.js";
 
-export const getRyansSearchedProducts = async (searchKey = "", currentPage = 1) => {
+export const getRyansSearchedProducts = async (page, searchKey = "", currentPage = 1) => {
   try {
-    const browser = await launchBrowser();
-    const page = await browser.newPage();
-
     const url = `https://www.ryans.com/search?q=${searchKey}&page=${currentPage}`;
     // const url = `https://www.ryans.com/search?q=keyboard`;
-    await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
+    const success = await safeGoto(page, url);
+    if (!success) return [];
 
     const products = await page.evaluate(() => {
       const productElements = document.querySelectorAll(".card.h-100");
@@ -33,9 +32,6 @@ export const getRyansSearchedProducts = async (searchKey = "", currentPage = 1) 
       }
     });
 
-
-    await browser.close();
-
     products.data = products.data.map(p => ({
       ...p,
       price: parsePrice(p.price),
@@ -48,12 +44,13 @@ export const getRyansSearchedProducts = async (searchKey = "", currentPage = 1) 
   }
 }
 
-export const getRyansSearchedProductDetails = async (url) => {
+export const getRyansSearchedProductDetails = async (productDetailsLink) => {
   try {
     const browser = await launchBrowser();
     const page = await browser.newPage();
 
-    await page.goto(`https://www.ryans.com/${url}`, { timeout: 60000, waitUntil: "domcontentloaded" });
+    // const productDetailsLink = `https://www.ryans.com/${url}`
+    await safeGoto(page, productDetailsLink);
 
     const product = await page.evaluate(() => {
       const productInfo = document.querySelector(".product-info-section");
@@ -86,12 +83,12 @@ export const getRyansSearchedProductDetails = async (url) => {
     });
 
 
-    await browser.close();
+    browser.close();
 
     product.regularPrice = parsePrice(product.regularPrice);
     product.specialPrice = parsePrice(product.specialPrice);
 
-    return { ...product, productDetailsLink: `https://www.ryans.com/${url}`, };
+    return { ...product, productDetailsLink };
   } catch (error) {
     console.log("getRyansSearchedProductDetails:", error)
     return null;

@@ -1,13 +1,12 @@
 import { parsePrice } from "./converter.js";
 import { launchBrowser } from "./puppeteer-browser.js";
+import { safeGoto } from "./safe-goto.js";
 
-export const getBinaryLogicSearchedProducts = async (searchKey = "", currentPage = 1) => {
+export const getBinaryLogicSearchedProducts = async (page, searchKey = "", currentPage = 1) => {
   try {
-    const browser = await launchBrowser();
-    const page = await browser.newPage();
-
     const url = `https://www.binarylogic.com.bd/search/${searchKey}?page=${currentPage}`;
-    await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
+    const success = await safeGoto(page, url);
+    if (!success) return [];
 
 
     const products = await page.evaluate(() => {
@@ -34,9 +33,6 @@ export const getBinaryLogicSearchedProducts = async (searchKey = "", currentPage
       }
     });
 
-
-    await browser.close();
-
     products.data = products.data.map(p => ({
       ...p,
       price: parsePrice(p.price),
@@ -49,12 +45,13 @@ export const getBinaryLogicSearchedProducts = async (searchKey = "", currentPage
   }
 }
 
-export const getBinaryLogicSearchedProductDetails = async (url) => {
+export const getBinaryLogicSearchedProductDetails = async (productDetailsLink) => {
   try {
     const browser = await launchBrowser();
     const page = await browser.newPage();
+    // const productDetailsLink = `https://www.binarylogic.com.bd/${url}`
 
-    await page.goto(`https://www.binarylogic.com.bd/${url}`, { timeout: 60000, waitUntil: "domcontentloaded" });
+    await safeGoto(page, productDetailsLink);
 
 
     const product = await page.evaluate(() => {
@@ -63,9 +60,9 @@ export const getBinaryLogicSearchedProductDetails = async (url) => {
       const smallButtons = productInfo && [...productInfo.querySelectorAll(".product-small-buttons")].flatMap(elem => elem.innerText.split("\n")).filter(text => text.trim()) || [];
       const title = productInfo && productInfo.querySelector(".product_d_right form h1")?.innerText?.trim()?.split("\n")?.[0] || "";
       const reviews = ""
-      const productId = smallButtons.length == 5 ? smallButtons[3] : smallButtons[1] || "";
-      const specialPrice = smallButtons.length == 5 ? smallButtons[1] : "";
-      const regularPrice = smallButtons.length == 5 ? smallButtons[2] : "";
+      const productId = smallButtons.length >= 5 ? smallButtons[3] : smallButtons[1] || "";
+      const specialPrice = smallButtons.length >= 5 ? smallButtons[1] : "";
+      const regularPrice = smallButtons.length >= 5 ? smallButtons[2] : "";
 
 
       const specifications = document.querySelector(".product_d_inner table");
@@ -91,7 +88,7 @@ export const getBinaryLogicSearchedProductDetails = async (url) => {
     });
 
 
-    await browser.close();
+    browser.close();
 
     const regex = product.reviews.match(/\((\d+)\)/);
     const reviewCount = regex ? parseInt(regex[1], 10) : 0;
@@ -100,7 +97,7 @@ export const getBinaryLogicSearchedProductDetails = async (url) => {
     product.regularPrice = parsePrice(product.regularPrice);
     product.specialPrice = parsePrice(product.specialPrice);
 
-    return { ...product, productDetailsLink: `https://www.techlandbd.com/${url}` };
+    return { ...product, productDetailsLink };
   } catch (error) {
     console.log("getBinaryLogicSearchedProductDetails:", error)
   }

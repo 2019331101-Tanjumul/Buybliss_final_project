@@ -32,7 +32,7 @@ export const addToWishlist = async (req, res) => {
     }
 
     // Check if item already exists in wishlist
-    const existingItem = await WishItem.findOne({ productDetailsLink, email });
+    const existingItem = await WishItem.findOne({ productDetailsLink, email, company });
     if (existingItem) {
       return res.status(400).json(
         new ApiResponse(400, {}, "Item already in wishlist")

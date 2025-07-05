@@ -1,8 +1,16 @@
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { getBinaryLogicSearchedProductDetails, getBinaryLogicSearchedProducts } from "../utils/binary-logic.js";
-import { getRyansSearchedProductDetails, getRyansSearchedProducts } from "../utils/ryans.js";
-import { getStarTechSearchedProductDetails, getStarTechSearchedProducts } from "../utils/star-tech.js";
-import { getTechLandSearchedProductDetails, getTechLandSearchedProducts } from "../utils/tech-land.js";
+import { getBinaryLogicSearchedProducts } from "../utils/binary-logic.js";
+import { getCreatusComputerSearchedProducts } from "../utils/creatus-computer.js";
+import { getDiamuSearchedProducts } from "../utils/diamu.js";
+import { findProductDetails } from "../utils/find-product-details.js";
+import { getGlobalBrandSearchedProducts } from "../utils/global-brand-private.js";
+import { launchBrowser } from "../utils/puppeteer-browser.js";
+import { getRyansSearchedProducts } from "../utils/ryans.js";
+import { getSkyLandSearchedProducts } from "../utils/sky-land.js";
+import { getStarTechSearchedProducts } from "../utils/star-tech.js";
+import { getTechLandSearchedProducts } from "../utils/tech-land.js";
+import { getUCCSearchedProducts } from "../utils/ucc.js";
+import { getUltraTechSearchedProducts } from "../utils/ultra-tech.js";
 
 
 export const getSearchedProducts = async (req, res) => {
@@ -12,22 +20,42 @@ export const getSearchedProducts = async (req, res) => {
       res.status(400).json({ message: "Search key is required" })
       return;
     }
-    const results = await Promise.allSettled([
-  getRyansSearchedProducts(searchKey, currentPage),
-  getStarTechSearchedProducts(searchKey, currentPage),
-  getTechLandSearchedProducts(searchKey, currentPage),
-  getBinaryLogicSearchedProducts(searchKey, currentPage),
-]);
 
-const products = results.reduce((acc, result) => {
-  if (result.status === "fulfilled" && Array.isArray(result.value)) {
-    acc.push(...result.value);
-  }
-  return acc;
-}, []);
+    const browser = await launchBrowser();
 
+    const sources = [
+      { name: "Ryans", fn: getRyansSearchedProducts },
+      { name: "StarTech", fn: getStarTechSearchedProducts },
+      { name: "TechLandBD", fn: getTechLandSearchedProducts },
+      { name: "BinaryLogic", fn: getBinaryLogicSearchedProducts },
+      { name: "SkyLand", fn: getSkyLandSearchedProducts },
+      { name: "UCC", fn: getUCCSearchedProducts },
+      { name: "GlobalBrand", fn: getGlobalBrandSearchedProducts },
+      { name: "UltraTech", fn: getUltraTechSearchedProducts },
+      { name: "Diamu", fn: getDiamuSearchedProducts },
+      { name: "CreatusComputerBD", fn: getCreatusComputerSearchedProducts },
+    ];
 
-    res.status(200).json(new ApiResponse(200, products))
+    const scrapePromises = sources.map(async ({ fn }) => {
+      const page = await browser.newPage();
+      try {
+        const result = await fn(page, searchKey, currentPage);
+        return result;
+      } finally {
+        page.close();
+      }
+    });
+
+    const results = await Promise.allSettled(scrapePromises);
+
+    const allProducts = results.reduce((acc, result) => {
+      if (result.status === "fulfilled" && Array.isArray(result.value)) acc.push(...result.value);
+      return acc;
+    }, []);
+
+    browser.close();
+    res.status(200).json(new ApiResponse(200, allProducts));
+
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message })
@@ -36,7 +64,7 @@ const products = results.reduce((acc, result) => {
 
 export const getSearchedProductDetails = async (req, res) => {
   try {
-    const { url, company } = req.params;
+    const { url, company } = req.body;
     if (!url) {
       return res.status(400).json({ message: "Url is required" })
     }
@@ -44,22 +72,11 @@ export const getSearchedProductDetails = async (req, res) => {
     if (!company) {
       return res.status(400).json({ message: "Company is required" })
     }
-    
-    const productDetails = await searchedProductDetails(url, company);
+
+    const productDetails = await findProductDetails(url, company);
     return res.status(200).json(new ApiResponse(200, productDetails));
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message })
-  }
-}
-
-
-const searchedProductDetails = async (url, company) => {
-  switch (company) {
-    case "Ryans": return getRyansSearchedProductDetails(url);
-    case "StarTech": return getStarTechSearchedProductDetails(url);
-    case "TechLandBD": return getTechLandSearchedProductDetails(url);
-    case "BinaryLogic": return getBinaryLogicSearchedProductDetails(url);
-    default: throw new Error(`Unsupported company: ${company}`);
   }
 }
