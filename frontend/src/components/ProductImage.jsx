@@ -1,14 +1,19 @@
-export const ProductImage = ({company, imageUrl, title}) => {
+export const ProductImage = ({ company, imageUrl, title }) => {
+	const isProxyCompany = ["BinaryLogic", "SkyLandBD"].includes(company);
+
 	return (
 		<>
-			{company === "BinaryLogic" ? (
+			{imageUrl !== "" ? (
 				<img
-					src={`https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`}
+					src={
+						isProxyCompany ? `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}` : imageUrl
+					}
 					alt={title}
 					className="product-img"
+					loading="lazy"
 				/>
 			) : (
-				<img src={imageUrl} alt={title} className="product-img" />
+				<img src="" alt={title} className="product-img" />
 			)}
 		</>
 	);

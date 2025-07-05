@@ -1,6 +1,7 @@
 export function comparisonTable(products) {
   const uniqueKeys = Array.from(
-    new Set(products.flatMap(product => Object.keys(product.attributes)))
+    new Set(products.flatMap(product => { 
+      return Object.keys(product.attributes) }))
   );
 
   // Output for table comparison:
@@ -11,5 +12,5 @@ export function comparisonTable(products) {
     });
     return row;
   });
-  
+
 }

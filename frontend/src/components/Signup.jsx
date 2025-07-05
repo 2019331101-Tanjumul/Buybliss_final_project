@@ -1,61 +1,63 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { login } from "../utils/actions";
+import { signup } from "../utils/actions";
 import { useWishlist } from "../context/WishlistContext";
-import { loginSchema } from "../schemas/loginSchema";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router";
+import { signupSchema } from "../schemas/signupSchema";
+import { VerifyEmail } from "./VerifyEmail";
 
-export const Login = () => {
-	const { setUser } = useAuth();
+export const Signup = () => {
 	const { updateWishlistCount } = useWishlist();
 	const [error, setError] = useState("");
-	const navigate = useNavigate();
+	const [success, setSuccess] = useState(false);
+	const [emailToVerify, setEmailToVerify] = useState("");
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors, isSubmitting },
 	} = useForm({
-		resolver: zodResolver(loginSchema),
+		resolver: zodResolver(signupSchema),
 		mode: "onChange",
 	});
 
 	const onSubmit = async ({ email, password }) => {
 		try {
 			setError("");
-			const data = await login(email, password);
+
+			const data = await signup(email, password);
 
 			if (data?.user?.email) {
-				if (!data.user.isVerified) {
-					navigate("/verify", { replace: true });
-				}
-				setUser(data.user);
+				setEmailToVerify(data.user.email);
+				setSuccess(true);
 				await updateWishlistCount();
-				navigate("/", { replace: true });
 			} else {
 				setError("Unexpected error occurred");
 			}
 		} catch (err) {
 			// Axios-specific error handling
 			if (err.response?.status === 401) {
-				setError("Invalid email or password.");
+				setError("Email already in use or invalid credentials.");
 			} else if (err.response?.data?.error) {
 				setError(err.response.data.error);
 			} else {
 				setError("Something went wrong. Please try again.");
 			}
 
-			console.log("login error:", err);
+			console.log("signup error:", err);
 		}
 	};
+
+	if (success) {
+		return <VerifyEmail email={emailToVerify} />;
+	}
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} onClick={(event) => event.stopPropagation()}>
 			<div>
-				<h1>Log In</h1>
-				<p>By logging in, you agree to our Privacy Policy and consent to receive emails.</p>
+				<h1>Sign Up</h1>
+				<p>By signin up, you agree to our Privacy Policy and consent to receive emails.</p>
 			</div>
 			<div>
 				<article>
@@ -71,19 +73,34 @@ export const Login = () => {
 					/>
 					<p className="error">{errors.password?.message}</p>
 				</article>
+
+				<article>
+					<input
+						type="password"
+						placeholder="Confirm Password"
+						autoComplete="new-password"
+						{...register("confirmPassword")}
+					/>
+					<p className="error">{errors.confirmPassword?.message}</p>
+				</article>
 			</div>
 
 			<article className="server-error">
 				{error && <p className="error">{error}</p>}
-				<button type="submit" disabled={isSubmitting || errors.email?.message || errors.password?.message}>
-					{isSubmitting ? "Loading ..." : <>Login</>}
+				<button
+					type="submit"
+					disabled={
+						isSubmitting || errors.email?.message || errors.password?.message || errors.confirmPassword?.message
+					}
+				>
+					{isSubmitting ? "Loading ..." : <>Signup</>}
 				</button>
 			</article>
 
 			<p>
-				Do not have an account?
-				<Link to={"/signup"} replace>
-					Signup
+				Already have an account?{" "}
+				<Link to={"/login"} replace>
+					Login
 				</Link>
 			</p>
 		</form>

@@ -1,5 +1,4 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import { isAuthenticated } from "./utils/actions";
 import AppLayout from "./components/layout/AppLayout";
 import Home from "./components/Home";
 import ProductList from "./components/ProductList";
@@ -8,55 +7,76 @@ import Wishlist from "./components/Wishlist";
 import CompareProducts from "./components/CompareProducts";
 import { WishlistProvider } from "./context/WishlistContext";
 import { CompareProvider } from "./context/CompareContext";
+import { Login } from "./components/Login";
+import { Signup } from "./components/Signup";
+import { VerifyEmailWithToken } from "./components/VerifyEmailWithToken";
 
 import "./App.css";
-import { useCallback, useEffect, useState } from "react";
-import { useUserStorage } from "./hooks/useUserStorage";
+import { VerifyEmail } from "./components/VerifyEmail";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Spinner } from "./components/ui/Spinner";
+
+function AuthWrapper() {
+	const { user, loading } = useAuth();
+
+	if (loading) {
+		return <Spinner />;
+	}
+
+	return (
+		<WishlistProvider user={user}>
+			<CompareProvider>
+				<BrowserRouter>
+					<Routes>
+						<Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+						<Route path="/signup" element={user ? <Navigate to="/" replace /> : <Signup />} />
+						<Route
+							path="/verify"
+							element={
+								!user ? (
+									<Navigate to="/login" replace />
+								) : user.isVerified ? (
+									<Navigate to="/" replace />
+								) : (
+									<VerifyEmail email={user.email} />
+								)
+							}
+						/>
+						<Route
+							path="/verify-email"
+							element={
+								!user ? (
+									<Navigate to="/login" replace />
+								) : user.isVerified ? (
+									<Navigate to="/" replace />
+								) : (
+									<VerifyEmailWithToken />
+								)
+							}
+						/>
+
+						<Route path="/" element={<AppLayout />}>
+							<Route index element={<Home />} />
+							<Route path="/products/:searchKey/:currentPage" element={<ProductList />} />
+							<Route path="/wishlist" element={user ? <Wishlist /> : <Navigate to="/login" />} />
+							<Route path="/product-details/:productId" element={<ProductDetails />} />
+							<Route path="/compare-products" element={<CompareProducts />} />
+						</Route>
+
+						<Route path="*" element={<Navigate to="/" replace />} />
+					</Routes>
+				</BrowserRouter>
+			</CompareProvider>
+		</WishlistProvider>
+	);
+}
 
 function App() {
-  const [auth, setAuth] = useState(null);
-  const [user, setUser] = useState(null);
-  const { removeUser, getUser } = useUserStorage();
-  const checkAuth = useCallback(async () => {
-    try {
-      const res = await isAuthenticated();
-      if (!res.data) {
-        removeUser();
-        setUser(null);
-        setAuth(null);
-      } else {
-        setAuth(res.data);
-        setUser(getUser()); // only after confirming auth
-      }
-    } catch {
-      removeUser();
-      setUser(null);
-      setAuth(null);
-    }
-  }, [getUser, removeUser]);
-
-  useEffect(() => {
-    checkAuth();
-  }, [removeUser, getUser, checkAuth]);
-
-  return (
-    <WishlistProvider user={user}>
-      <CompareProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<AppLayout user={user} setUser={setUser} />}>
-              <Route index element={<Home />} />
-              <Route path="/products/:searchKey/:currentPage" element={<ProductList />} />
-              <Route path="/wishlist" element={auth ? <Wishlist /> : <Home />} />
-              <Route path="/product-details/:productId" element={<ProductDetails />} />
-              <Route path="/compare-products" element={<CompareProducts />} />
-            </Route>
-            <Route path="*" element={<Navigate to={"/"} replace />} />
-          </Routes>
-        </BrowserRouter>
-      </CompareProvider>
-    </WishlistProvider>
-  );
+	return (
+		<AuthProvider>
+			<AuthWrapper />
+		</AuthProvider>
+	);
 }
 
 export default App;

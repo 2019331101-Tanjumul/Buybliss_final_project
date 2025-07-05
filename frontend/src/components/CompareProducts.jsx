@@ -6,17 +6,41 @@ import { useNavigate } from "react-router";
 import { useCompare } from "../context/CompareContext";
 import { CompanyLogo } from "./CompanyLogo";
 import { ProductImage } from "./ProductImage";
+import { addToWishlist } from "../utils/actions";
+import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 
 const CompareProducts = () => {
 	const navigate = useNavigate();
 	const { getProducts, removeProduct, clearAll } = useCompareStorage();
 	const { updateCompareCount } = useCompare();
 	const [products, setProducts] = useState([]);
+	const [loadingProductKey, setLoadingProductKey] = useState(null);
 	const comparableAttributes = comparisonTable(products);
+	const { updateWishlistCount } = useWishlist();
+	const { user } = useAuth();
 
 	useEffect(() => {
 		setProducts(getProducts());
 	}, [getProducts]);
+
+	const handleAddToWishlist = async (productDetailsLink, price, company, key) => {
+		if (!user) {
+			navigate("/login");
+			return;
+		}
+
+		setLoadingProductKey(key);
+
+		try {
+			await addToWishlist(productDetailsLink, price, company, user.email);
+			await updateWishlistCount(user.email);
+		} catch (error) {
+			alert(error.response?.data?.message || "Failed to add to wishlist");
+		} finally {
+			setLoadingProductKey(null);
+		}
+	};
 
 	if (products.length === 0)
 		return (
@@ -57,11 +81,13 @@ const CompareProducts = () => {
 										</span>
 										<ProductImage title={product.title} imageUrl={product.imageUrls[0]} company={product.company} />
 										<div className="compared-product-content">
-											{/* Change the color */}
-											{product.specialPrice && <p className="special-price">Special Price: {product.specialPrice}</p>}
-											<p>Regular Price: {product.regularPrice}</p>
+											{product.specialPrice !== "Out Of Stock" ? (
+												<p className="special-price">Special Price: {product.specialPrice}৳</p>
+											) : (
+												<p className="special-price">Special Price: </p>
+											)}
+											<p>Regular Price: {product.regularPrice}৳</p>
 											<h2>{product.title}</h2>
-											<p>Product Id: {product.productId}</p>
 										</div>
 										<Button
 											className="close-modal-btn"
@@ -89,6 +115,19 @@ const CompareProducts = () => {
 													/>
 												</g>
 											</svg>
+										</Button>
+										<Button
+											onClick={() => {
+												handleAddToWishlist(
+													product.productDetailsLink,
+													isNaN(!product.specialPrice) ? product.specialPrice : product.regularPrice,
+													product.company,
+													product.key
+												);
+											}}
+											disabled={loadingProductKey === product.key || product.regularPrice === "Out Of Stock"}
+										>
+											Add To Wishlist
 										</Button>
 									</div>
 								</a>
