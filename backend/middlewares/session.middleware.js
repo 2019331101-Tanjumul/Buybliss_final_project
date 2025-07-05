@@ -17,11 +17,15 @@ export async function sessionMiddleware(req, res, next) {
     return res.status(403).json(new ApiResponse(403, {}, "Forbidden"));
   }
 
-  const newExpiry = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
-  session.expiresAt = newExpiry;
-  await session.save();
-
-  setCookie(res, sessionId, newExpiry);
+  const expiresSoon = session.expiresAt.getTime() - Date.now() < 1000 * 60 * 60 * 12; // <12 hrs
+  if (expiresSoon) {
+    const newExpiry = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
+    session.expiresAt = newExpiry;
+    Promise.resolve().then(() => {
+      session.save();
+    });
+    setCookie(res, sessionId, newExpiry);
+  }
 
   req.userId = session.userId;
   next();
