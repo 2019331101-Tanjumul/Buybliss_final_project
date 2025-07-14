@@ -25,10 +25,23 @@ export async function verifyEmail(token) {
   return response.data.data
 }
 
+
+//previous code 
+// export async function resendVerificationEmail() {
+//   const response = await axios.post(`http://localhost:3000/auth/resend-verification`, { withCredentials: true });
+//   return response.data.data
+// }
+
+//gpt solve : 
 export async function resendVerificationEmail() {
-  const response = await axios.post(`http://localhost:3000/auth/resend-verification`, { withCredentials: true });
-  return response.data.data
+  const response = await axios.post(
+    `http://localhost:3000/auth/resend-verification`,
+    {}, // empty body
+    { withCredentials: true } // config object
+  );
+  return response.data.data;
 }
+
 
 export async function login(email, password) {
   const response = await axios.post(`http://localhost:3000/auth/login`, { email, password }, { withCredentials: true });

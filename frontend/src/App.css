@@ -163,6 +163,39 @@ body.no-scroll {
 	outline: none;
 }
 
+.price-slider {
+  margin: 1rem 0;
+}
+
+.price-slider .rc-slider-rail {
+  background-color: #eee;
+	height: 0.25rem;
+}
+
+.price-slider .rc-slider-track {
+  background-color: oklch(65.3% 0.18936 286.144); /* Active range color */
+}
+
+.price-slider .rc-slider-handle {
+	width: 1.25rem;
+	height: 1.25rem;
+  background-color: oklch(45.7% 0.24 277.023);
+	opacity: 1;
+  border: 0.125rem solid oklch(61.033% 0.21811 284.131);
+	margin-top: -0.5rem; /* HALF of handle height (1.25rem) */
+  cursor: default;
+  transition: border-color 0.2s;
+}
+
+.price-slider .rc-slider-handle:hover {
+  border-color: #0051a3;
+}
+
+.price-slider .rc-slider-handle:active {
+  box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.2);
+}
+
+
 .sort-btn {
 	align-self: flex-end;
 	background: oklch(64.6% 0.222 41.116);

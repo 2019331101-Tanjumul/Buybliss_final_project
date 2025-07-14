@@ -52,7 +52,7 @@ export const Login = () => {
 	};
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} onClick={(event) => event.stopPropagation()}>
+		<form className="logged" onSubmit={handleSubmit(onSubmit)} onClick={(event) => event.stopPropagation()}>
 			<div>
 				<h1>Log In</h1>
 				<p>By logging in, you agree to our Privacy Policy and consent to receive emails.</p>
@@ -78,6 +78,7 @@ export const Login = () => {
 				<button type="submit" disabled={isSubmitting || errors.email?.message || errors.password?.message}>
 					{isSubmitting ? "Loading ..." : <>Login</>}
 				</button>
+				<h2 className="forget">forget password</h2>
 			</article>
 
 			<p>

@@ -54,7 +54,7 @@ export const Signup = () => {
 	}
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} onClick={(event) => event.stopPropagation()}>
+		<form className="logged" onSubmit={handleSubmit(onSubmit)} onClick={(event) => event.stopPropagation()}>
 			<div>
 				<h1>Sign Up</h1>
 				<p>By signin up, you agree to our Privacy Policy and consent to receive emails.</p>
@@ -99,10 +99,13 @@ export const Signup = () => {
 
 			<p>
 				Already have an account?{" "}
+				
 				<Link to={"/login"} replace>
 					Login
 				</Link>
+				
 			</p>
+			
 		</form>
 	);
 };

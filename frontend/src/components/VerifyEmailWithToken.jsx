@@ -58,29 +58,58 @@ export const VerifyEmailWithToken = () => {
 	};
 
 	return (
-		<div className="verify-email">
-			<h1>Email Verification</h1>
+	// 	<div className="verify-email">
+	// 		<h1>Email Verification</h1>
 
-			{status === "verifying" && <p>Verifying your email...</p>}
+	// 		{status === "verifying" && <p>Verifying your email...</p>}
 
-			{status === "success" && (
-				<div className="success-message">
-					<p>{message}</p>
-					<p>Redirecting to login...</p>
-				</div>
-			)}
+	// 		{status === "success" && (
+	// 			<div className="success-message">
+	// 				<p>{message}</p>
+	// 				<p>Redirecting to login...</p>
+	// 			</div>
+	// 		)}
 
-			{status === "error" && (
-				<div className="error-message">
-					<p>{message}</p>
-					<p>
-						Need help?
-						<Button onClick={handleResend}>
-							{countDown ? `Wait ${countDown} seconds before trying again` : "Resend verification Email"}
-						</Button>
-					</p>
-				</div>
-			)}
-		</div>
+	// 		{status === "error" && (
+	// 			<div className="error-message">
+	// 				<p>{message}</p>
+	// 				<p>
+	// 					Need help?
+	// 					<Button onClick={handleResend}>
+	// 						{countDown ? `Wait ${countDown} seconds before trying again` : "Resend verification Email"}
+	// 					</Button>
+	// 				</p>
+	// 			</div>
+	// 		)}
+	// 	</div>
+	// );
+
+	<div className="verify-email-container">
+	<div className="verify-email-card">
+		<h1>Email Verification</h1>
+
+		{status === "verifying" && <p>Verifying your email...</p>}
+
+		{status === "success" && (
+			<div className="success-message">
+				<p>{message}</p>
+				<p>Redirecting to login...</p>
+			</div>
+		)}
+
+		{status === "error" && (
+			<div className="error-message">
+				<p>{message}</p>
+				<p>
+					Need help?
+					<Button onClick={handleResend} disabled={countDown > 0}>
+						{countDown ? `Wait ${countDown} seconds before trying again`: "Resend Verification Email"}
+					</Button>
+				</p>
+			</div>
+		)}
+	</div>
+</div>
+
 	);
 };

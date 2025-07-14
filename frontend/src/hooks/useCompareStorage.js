@@ -9,7 +9,10 @@ export const useCompareStorage = () => {
     try {
       const existing = JSON.parse(window.localStorage.getItem(key)) || [];
       const alreadyExists = existing.some(item => item.key === uniqueKey);
-      if (alreadyExists) return;
+      if (alreadyExists) {
+        alert("Product is already in compare")
+        return;
+      }
 
       const updated = [...existing, { key: uniqueKey, ...product }];
       window.localStorage.setItem(key, JSON.stringify(updated));
